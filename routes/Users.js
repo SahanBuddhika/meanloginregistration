@@ -2,7 +2,7 @@ const express = require("express");
 const users = express.Router();
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
-const bcrcpt = require("bcrypt");
+const bcrypt = require("bcrypt");
 
 const User = require("../models/User")
 users.use(cors())
@@ -41,6 +41,36 @@ users.post('/register', (req , res) => {
     .catch(err =>{
         res.send('error:' + err)
     })
+})
+
+users.post('/login' , (req , res) =>{
+    User.findOne({
+        email:req.body.email
+    })
+    .then(user =>{
+        if(user){
+            if(bcrypt.compareSync(req.body.password , user.password)){
+                const payload = {
+                    _id: user._id,
+                    first_name:user.first_name,
+                    last_name:user.last_name,
+                    email:user.email
+                }
+                let token = jwt.sign(payload , process.env.SECRET_KEY, {
+                    expiresIn:1440
+                })
+                res.json({ token:token})
+            }else{
+                res.json({error: "User Does Not Exist"})
+            }
+        }else{
+            res.json({error: "User Does Not Exist"})
+        }
+    })
+    .catch(err => {
+        res.send('error:' + err)
+    })
+    
 })
 
 module.exports = users
