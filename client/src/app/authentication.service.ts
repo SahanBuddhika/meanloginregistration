@@ -31,7 +31,7 @@ export interface TokenPayload{
 export class AuthenticationService{
   private token:string
 
-  constructer(private http: HttpClient, private router:Router){}
+  constructor(private http: HttpClient, private router:Router){}
 
   private saveToken(token:string):void{
     localStorage.setItem('usertoken',token)
@@ -45,7 +45,7 @@ export class AuthenticationService{
     return this.token
   }
 
-  public getUserdetails():UserDetails{
+  public getUserDetails():UserDetails{
     const token = this.getToken()
     let payload
     if(token){
@@ -80,6 +80,20 @@ export class AuthenticationService{
     return request
   }
 
+  public login(user: TokenPayload):Observable<any>{
+    const base = this.http.post(`/users/login` , user)
+
+    const request = base.pipe(
+        map((data: TokenResponse) => {
+          if(data.token){
+            this.saveToken(data.token)
+          }return data
+        })
+    )
+
+    return request
+  }
+
   public profile(): Observable<any>{
     return this.http.get(`/users/profile`,{
       headers:{Authorization: `${this.getToken()}`}
@@ -91,10 +105,5 @@ export class AuthenticationService{
     window.localStorage.removeItem('usertoken')
     this.router.navigateByUrl('/')
   }
-
-
-
-
-
 
 }
