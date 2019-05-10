@@ -15,11 +15,11 @@ export class LoginComponent{
     password:''
   }
 
-  constructor(private auth: AuthenticationServeice,private router: Router){}
+  constructor(private auth: AuthenticationService,private router: Router){}
 
   login(){
     this.auth.login(this.credentials).subscribe(
-      ()={
+      ()=>{
         this.router.navigateByUrl('/profile')
       },
       err =>{
